@@ -245,6 +245,4 @@ class Flags(IntEnum):
         for mask in cls:
             if number & mask == mask:
                 flags_a(mask)
-        if len(flags) > 1:
-            flags = flags[1:]
         return flags
