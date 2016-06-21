@@ -7,7 +7,7 @@ from vk_lplib.vk import VK, Flags
 
 def on_message(msg_id, flags, from_id, ts, text, from_uid):
     # пример использования флагов
-    if Flags.MULTICHAT and Flags.FRIENDS in Flags.get_flags(flags):
+    if Flags.MULTICHAT and Flags.FRIENDS in Flags.get(flags):
         pass
     pass
 
