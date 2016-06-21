@@ -239,7 +239,7 @@ class Flags(IntEnum):
     MULTICHAT = 8192
 
     @classmethod
-    def get_flags(cls, number):
+    def get(cls, number):
         flags = []
         flags_a = flags.append
         for mask in cls:
