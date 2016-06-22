@@ -24,7 +24,7 @@ __author__ = 'stroum'
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import datetime
+from datetime import datetime
 import time
 import json
 import traceback
@@ -41,7 +41,7 @@ chat_name_cache = {}
 def get_time(ts=0):
     if ts == 0:
         ts = time.time()
-    return datetime.datetime.fromtimestamp(
+    return datetime.fromtimestamp(
         int(ts)
     ).strftime('%d/%m/%y %H:%M:%S')
 
@@ -103,7 +103,15 @@ class VK:
     def mark_as_read(self, peer_id):
         return self.query("messages.markAsRead", {"peer_id": peer_id})
 
-    def get_sender_name(self, id):
+    def get_sender_name(self, id, name_case="nom"):
+        """
+        именительный – nom
+        родительный – gen
+        дательный – dat
+        винительный – acc
+        творительный – ins
+        предложный – abl
+        """
         _type = "user"
         if int(id) > self.CHAT_IDS:
             id -= self.CHAT_IDS
@@ -113,6 +121,7 @@ class VK:
                 return user_name_cache[id]
             j = self.query("users.get", {
                 "user_ids": id,
+                "name_case": name_case
             })["response"]
             user_name_cache[id] = "{} {}".format(j[0]["first_name"], j[0]["last_name"])
             return user_name_cache[id]
@@ -150,7 +159,8 @@ class VK:
 
                         logging.debug("executing task {}, type {}".format(i, type))
 
-                        """0,$message_id,0 -- удаление сообщения с указанным local_id
+                        """
+                        0,$message_id,0 -- удаление сообщения с указанным local_id
                         1,$message_id,$flags -- замена флагов сообщения (FLAGS:=$flags)
                         2,$message_id,$mask[,$user_id] -- установка флагов сообщения (FLAGS|=$mask)
                         3,$message_id,$mask[,$user_id] -- сброс флагов сообщения (FLAGS&=~$mask)
@@ -164,7 +174,6 @@ class VK:
                         70,$user_id,$call_id -- пользователь $user_id совершил звонок имеющий идентификатор $call_id, дополнительную информацию о звонке можно получить используя метод voip.getCallInfo.
                         80,$count,0 — новый счетчик непрочитанных в левом меню стал равен $count.
                         114,{ $peerId, $sound, $disabled_until } — изменились настройки оповещений, где peerId — $peer_id чата/собеседника, sound — 1 || 0, включены/выключены звуковые оповещения, disabled_until — выключение оповещений на необходимый срок (-1: навсегда, 0: включены, other: timestamp, когда нужно включить).
-
                         """
                         if "on_typing" in self.handlers:
                             if type == 61:
